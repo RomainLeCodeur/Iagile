@@ -105,7 +105,7 @@ class LanguageInterface:
 class ChatInterface(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("ChatBot")
+        self.setWindowTitle("ReadFact")
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.setStyleSheet(f"background-color: {BACKGROUND_COLOR}; color: {TEXT_COLOR};")
