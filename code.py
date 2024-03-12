@@ -1,6 +1,26 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QCheckBox, QLabel, QHBoxLayout, QGridLayout, QPushButton, QMenuBar, QMenu, QAction, QComboBox, QWidgetAction
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QCheckBox, QLabel, QHBoxLayout, QGridLayout, QPushButton, QMenu, QAction, QComboBox, QFileDialog
+from PyQt5.QtCore import QUrl
+from factuality import Factuality
+from PyQt5.QtGui import QDesktopServices
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+class ChatInterface(QMainWindow):
+    # Votre code précédent ici...
+
+    def open_pdf_guide(self):
+        # Chemin relatif du fichier PDF
+        file_path = "Guide_ReadFact.pdf"
+
+        # Récupérer le chemin absolu du fichier PDF
+        current_dir = os.path.dirname(__file__)
+        file_path = os.path.join(current_dir, file_path)
+
+        # Ouvrir le fichier PDF avec l'application par défaut
+        QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
+
 
 import requests
 
@@ -22,8 +42,6 @@ class LanguageInterface:
         self.language_combobox = QComboBox()
         self.language_combobox.addItems(self.language_options)
         self.language_combobox.currentTextChanged.connect(self.change_language)
-
-        # Créer une action de widget pour ajouter le QComboBox au menu
 
     def change_language(self, language):
         print(f"Changer la langue en: {language}")
@@ -101,9 +119,9 @@ class ChatInterface(QMainWindow):
         layout.addWidget(self.entry_field, 1, 0)
 
         # Cases à cocher pour les fonctions
-        self.function1_checkbox = QCheckBox("Function 1")
+        self.function1_checkbox = QCheckBox("Factuality")
         self.function1_checkbox.setStyleSheet(f"QCheckBox {{ color: {TEXT_COLOR}; }}")  # Appliquer uniquement la couleur du texte
-        self.function2_checkbox = QCheckBox("Function 2")
+        self.function2_checkbox = QCheckBox("Readability")
         self.function2_checkbox.setStyleSheet(f"QCheckBox {{ color: {TEXT_COLOR}; }}")  # Appliquer uniquement la couleur du texte
 
         self.checkbox_layout = QVBoxLayout()
@@ -149,24 +167,10 @@ class ChatInterface(QMainWindow):
         # Menu Fichier
         file_menu = menubar.addMenu('Fichier')
 
-        # Sous-menu Nouveau
-        new_menu = QMenu('Nouveau', self)
-        new_menu.addAction('Document')
-        new_menu.addAction('Projet')
-        file_menu.addMenu(new_menu)
-
-        # Action Ouvrir
-        open_action = QAction('Ouvrir', self)
-        file_menu.addAction(open_action)
-
-        # Action Enregistrer
-        save_action = QAction('Enregistrer', self)
-        file_menu.addAction(save_action)
-
-        # Action Quitter
-        quit_action = QAction('Quitter', self)
-        quit_action.triggered.connect(self.close)
-        file_menu.addAction(quit_action)
+        # Action Enregistrer Historique
+        save_history_action = QAction('Enregistrer Historique', self)
+        save_history_action.triggered.connect(self.save_history)
+        file_menu.addAction(save_history_action)
 
         # Menu Langue
         self.menu_language = menubar.addMenu('Langue')
@@ -179,14 +183,42 @@ class ChatInterface(QMainWindow):
         # Menu Aide
         help_menu = menubar.addMenu('Aide')
 
+        # Action Aide PDF
+        help_pdf_action = QAction('Guide d\'utilisation (PDF)', self)
+        help_pdf_action.triggered.connect(self.open_pdf_guide)
+        help_menu.addAction(help_pdf_action)
+    
+    def save_history(self):
+        # Demander à l'utilisateur de spécifier le nom et le chemin du fichier PDF
+        file_path, _ = QFileDialog.getSaveFileName(self, "Enregistrer Historique", "", "Fichiers PDF (*.pdf)")
+
+        if file_path:
+            # Enregistrer l'historique dans un fichier PDF
+            with open(file_path, "wb") as f:
+                c = canvas.Canvas(f, pagesize=letter)
+                #c.drawString(100, 750, "Historique du ChatBot:")
+                text = self.message_display.toPlainText()
+                y = 730
+                for line in text.split('\n'):
+                    y -= 15
+                    c.drawString(100, y, line)
+                c.showPage()
+                c.save()
+
+            # Ouvrir le fichier PDF avec l'application par défaut
+            QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
     def send_message(self):
         # Envoyer le message et afficher la réponse dans la console
         message = self.entry_field.toPlainText()
-        self.display_message("Votre phrase: " + message)
+        self.display_message(message)
         
+        # Calcul de la factualité du texte
+        factuality_calculator = Factuality(message)
+        factuality_result = factuality_calculator.calcul()
+
         selected_function = None
         if self.function1_checkbox.isChecked():
-            self.display_message("Function 1 checked")
+            self.display_message("Factuality")
             selected_function = 1
         elif self.function2_checkbox.isChecked():
             self.display_message("Function 2 checked")
@@ -195,18 +227,25 @@ class ChatInterface(QMainWindow):
             self.display_message("No function selected")
 
         if selected_function == 1:
-            response = function(message)
+            response = factuality_calculator.toString()
         elif selected_function == 2:
             response = function2(message)
         else:
             response = "No function selected"
 
-        self.display_message("ChatBot: " + response)
+        self.display_message(response)
         self.entry_field.clear()
 
     def display_message(self, message):
         # Afficher un message dans la console de sortie
         self.message_display.append(message)
+
+    def open_pdf_guide(self):
+        # Chemin relatif du fichier PDF
+        file_path = "Guide_ReadFact.pdf"
+
+        # Lancer l'application par défaut pour ouvrir le fichier PDF
+        QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
 
 def main():
     # Lancer l'application
