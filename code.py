@@ -41,6 +41,7 @@ class ChatInterface(QMainWindow):
         self.checkbox_layout = QVBoxLayout()
         self.checkbox_layout.addWidget(self.function1_checkbox)
         self.checkbox_layout.addWidget(self.function2_checkbox)
+        self.checkbox_layout.setSpacing(0)  # Définir l'espacement à 0
 
         layout.addLayout(self.checkbox_layout, 0, 1)
 
