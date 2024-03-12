@@ -1,5 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget, QCheckBox, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget, QCheckBox, QLabel, QHBoxLayout, QGridLayout
+
 import requests
 
 API_URL = "https://api-inference.huggingface.co/models/valurank/en_readability"
@@ -28,36 +29,36 @@ class ChatInterface(QMainWindow):
         self.setWindowTitle("ChatBot")
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
-        layout = QVBoxLayout()
+        layout = QGridLayout()
         
-        self.history_label = QLabel("Historique")
-        layout.addWidget(self.history_label)
+        self.entry_field = QTextEdit()
+        layout.addWidget(QLabel("Votre phrase"), 0, 0)
+        layout.addWidget(self.entry_field, 0, 0)
+
+        self.function1_checkbox = QCheckBox("Function 1")
+        self.function2_checkbox = QCheckBox("Function 2")
+
+        self.checkbox_layout = QVBoxLayout()
+        self.checkbox_layout.addWidget(self.function1_checkbox)
+        self.checkbox_layout.addWidget(self.function2_checkbox)
+
+        layout.addLayout(self.checkbox_layout, 0, 1)
 
         self.message_display = QTextEdit()
         self.message_display.setReadOnly(True)
-        layout.addWidget(self.message_display)
-        
-        self.entry_label = QLabel("Votre phrase")
-        layout.addWidget(self.entry_label)
+        layout.addWidget(QLabel("Historique"), 0, 2)
+        layout.addWidget(self.message_display, 0, 2)
 
-        self.entry_field = QTextEdit()
-        layout.addWidget(self.entry_field)
-
-        self.function_var = None
-
-        self.function1_checkbox = QCheckBox("Function 1")
-        layout.addWidget(self.function1_checkbox)
-
-        self.function2_checkbox = QCheckBox("Function 2")
-        layout.addWidget(self.function2_checkbox)
-
+        button_layout = QHBoxLayout()
         self.send_button = QPushButton("Send")
         self.send_button.clicked.connect(self.send_message)
-        layout.addWidget(self.send_button)
+        button_layout.addWidget(self.send_button)
 
         self.quit_button = QPushButton("Quit")
         self.quit_button.clicked.connect(self.close)
-        layout.addWidget(self.quit_button)
+        button_layout.addWidget(self.quit_button)
+        
+        layout.addLayout(button_layout, 1, 0)
 
         self.central_widget.setLayout(layout)
 
