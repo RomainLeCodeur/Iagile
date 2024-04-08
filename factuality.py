@@ -1,10 +1,11 @@
-class Factuality:
-    
-    def __init__(self, text):
-        self.text = text
+from transformers import pipeline
+pipe = pipeline("text-classification", model="lighteternal/fact-or-opinion-xlmr-el")
 
-    def calcul(self):
-        return 'resCalcul1'
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+tokenizer = AutoTokenizer.from_pretrained("lighteternal/fact-or-opinion-xlmr-el")
+model = AutoModelForSequenceClassification.from_pretrained("lighteternal/fact-or-opinion-xlmr-el")
+classifier = pipeline("text-classification",model=model,tokenizer=tokenizer)
 
-    def toString(self):
-        return "La factualité du texte est estimé à :" + self.calcul()
+def scoreFact(text):
+    var=classifier(text)
+    return var['score']
