@@ -1,6 +1,12 @@
 from readmepp import ReadMe
 #from langdetect import detect
 
+
+def scoreRead(text):
+    predictor=ReadMe(lang='fr')
+    return str(predictor.predict(text))
+
+"""
 class Readability:
     
     def __init__(self, text):
@@ -13,3 +19,4 @@ class Readability:
 
     def toString(self):
         return "Le niveau de langue du texte est estimé à :" + self.calcul()
+"""

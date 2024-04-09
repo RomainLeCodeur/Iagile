@@ -2,12 +2,10 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QUrl
 from openpyxl import *
-import factuality 
+import factuality
+import readability
 from PyQt5.QtGui import QDesktopServices
 import os
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-import re
 import fitz
 
 class ChatInterface(QMainWindow):
@@ -365,14 +363,14 @@ class ChatInterface(QMainWindow):
     def send_message(self):
         # Envoyer le message et afficher la réponse dans la console
         message = self.entry_field.toPlainText()
-        self.display_message(message)
+        self.display_message("Phrase:"+message)
 
         selected_function = None
         if self.function1_checkbox.isChecked():
-            self.display_message("Factuality")
+            self.display_message("Modèle: Factuality")
             selected_function = 1
         elif self.function2_checkbox.isChecked():
-            self.display_message("Function 2 checked")
+            self.display_message("Modèle: Readability")
             selected_function = 2
         else:
             self.display_message("No function selected")
@@ -380,11 +378,11 @@ class ChatInterface(QMainWindow):
         if selected_function == 1:
             response = factuality.scoreFact(message)
         elif selected_function == 2:
-            response = function2(message)
+            response = readability.scoreRead(message)
         else:
             response = "No function selected"
 
-        self.display_message(response)
+        self.display_message("Score:"+response)
         self.entry_field.clear()
 
     def display_message(self, message):
