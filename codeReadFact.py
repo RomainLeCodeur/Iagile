@@ -22,7 +22,6 @@ class ChatInterface(QMainWindow):
         QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
 
 
-import requests
 
 # Thème Clair
 BACKGROUND_COLOR = "#FFFFFF"
@@ -328,21 +327,27 @@ class ChatInterface(QMainWindow):
 
             # Ajouter des en-têtes
             ws['A1'] = 'Phrase'
-            ws['B1'] = 'Choix du modèle'
+            ws['B1'] = 'Modèle'
             ws['C1'] = 'Score'
 
             # Ajouter l'historique dans la feuille de calcul
             messages = self.message_display.toPlainText().split('\n')
             row_index = 2  # Commencer à la ligne suivante après l'en-tête
+            current_phrase = ""
+            current_model = ""
+            current_score = ""
             for message in messages:
-                # Récupérer la phrase, le choix du modèle et le score de chaque message
-                phrase, model_choice, score = self.parse_message(message)
-
-                # Écrire les données dans le classeur Excel
-                ws.cell(row=row_index, column=1, value=phrase)
-                ws.cell(row=row_index, column=2, value=model_choice)
-                ws.cell(row=row_index, column=3, value=score)
-                row_index += 1
+                if message.startswith("Phrase:"):
+                    current_phrase = message.split("Phrase:")[1]
+                elif message.startswith("Modèle:"):
+                    current_model = message.split("Modèle:")[1]
+                elif message.startswith("Score:"):
+                    current_score = message.split("Score:")[1]
+                    # Écrire les données dans le classeur Excel
+                    ws.cell(row=row_index, column=1, value=current_phrase)
+                    ws.cell(row=row_index, column=2, value=current_model)
+                    ws.cell(row=row_index, column=3, value=current_score)
+                    row_index += 1
 
             # Enregistrer le classeur Excel
             wb.save(file_path)
@@ -352,38 +357,60 @@ class ChatInterface(QMainWindow):
 
     def parse_message(self, message):
         # Séparer le message en phrase, choix du modèle et score
-        parts = message.split(': ')
-        phrase = parts[0]
-        if len(parts) > 1:
-            model_choice, score = parts[1].split(' - ')
-            return phrase, model_choice, score
-        else:
-            return phrase, '', ''
+        parts = message.split('\n')
+        phrase = None
+        model_choice = None
+        score = None
+
+        for part in parts:
+            if part.startswith('Phrase:'):
+                phrase = part.split('Phrase:')[-1].strip()
+            elif part.startswith('Modèle:'):
+                model_choice = part.split('Modèle:')[-1].strip()
+            elif part.startswith('Score:'):
+                score = part.split('Score:')[-1].strip()
+
+        return phrase, model_choice, score
         
     def send_message(self):
         # Envoyer le message et afficher la réponse dans la console
         message = self.entry_field.toPlainText()
-        self.display_message("Phrase:"+message)
 
-        selected_function = None
-        if self.function1_checkbox.isChecked():
-            self.display_message("Modèle: Factuality")
-            selected_function = 1
-        elif self.function2_checkbox.isChecked():
-            self.display_message("Modèle: Readability")
-            selected_function = 2
-        else:
-            self.display_message("No function selected")
+        if not self.function1_checkbox.isChecked() and not self.function2_checkbox.isChecked():
+            QMessageBox.warning(self, "Aucune fonction sélectionnée", "Veuillez sélectionner au moins une fonction.")
+            return
 
-        if selected_function == 1:
-            response = factuality.scoreFact(message)
-        elif selected_function == 2:
-            response = readability.scoreRead(message)
-        else:
-            response = "No function selected"
+        # Diviser le texte en phrases
+        sentences = message.split('.')
 
-        self.display_message("Score:"+response)
+        for sentence in sentences:
+            if not sentence.strip():  # Ignorer les phrases vides
+                continue
+            print(sentence)
+            self.display_message("Phrase: " + sentence)
+
+            selected_function = None
+            if self.function1_checkbox.isChecked() and self.function2_checkbox.isChecked():
+                self.display_message("Modèle: Factuality and Readability")
+                selected_function = 3
+            elif self.function1_checkbox.isChecked() and not self.function2_checkbox.isChecked():
+                self.display_message("Modèle: Factuality")
+                selected_function = 1
+            elif self.function2_checkbox.isChecked() and not self.function1_checkbox.isChecked():
+                self.display_message("Modèle: Readability")
+                selected_function = 2
+
+            if selected_function == 1:
+                response = factuality.scoreFact(sentence)
+            elif selected_function == 2:
+                response = readability.scoreRead(sentence)
+            elif selected_function == 3:
+                response = factuality.scoreFact(sentence) + " / " + readability.scoreRead(sentence)
+
+            self.display_message("Score: " + response)
+        
         self.entry_field.clear()
+
 
     def display_message(self, message):
         # Afficher un message dans la console de sortie
