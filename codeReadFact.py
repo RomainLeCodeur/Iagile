@@ -123,6 +123,12 @@ class ChatInterface(QMainWindow):
         self.function2_checkbox = QCheckBox("Readability")
         self.function2_checkbox.setStyleSheet(f"QCheckBox {{ color: {TEXT_COLOR}; }}")  # Appliquer uniquement la couleur du texte
 
+        # Case à cocher pour le calcul de la moyenne des scores des paragraphes
+        self.average_checkbox = QCheckBox("Moyenne des scores")
+        self.average_checkbox.setStyleSheet(f"QCheckBox {{ color: {TEXT_COLOR}; }}")  
+        layout.addWidget(self.average_checkbox, 2, 1)  # Ajouter la case à cocher à la disposition
+
+
         self.checkbox_layout = QVBoxLayout()
         self.checkbox_layout.addWidget(self.function1_checkbox)
         self.checkbox_layout.addWidget(self.function2_checkbox)
@@ -151,6 +157,11 @@ class ChatInterface(QMainWindow):
         
         layout.addLayout(button_layout, 2, 0)
 
+        self.reset_button = QPushButton("Reset Historic")
+        self.reset_button.clicked.connect(self.reset_history)
+        self.reset_button.setStyleSheet(f"background-color: {BUTTON_COLOR}; color: {BUTTON_TEXT_COLOR};")
+        button_layout.addWidget(self.reset_button)
+
         self.central_widget.setLayout(layout)
 
         # Création de la barre de menus
@@ -158,7 +169,10 @@ class ChatInterface(QMainWindow):
 
         # Initialiser l'interface de langue
         self.language_interface = LanguageInterface(self)
-
+    def reset_history(self):
+        # Effacer l'historique dans la console de sortie
+        self.message_display.clear()
+        
     def create_menu(self):
         # Création de la barre de menus
         menubar = self.menuBar()
@@ -327,27 +341,30 @@ class ChatInterface(QMainWindow):
 
             # Ajouter des en-têtes
             ws['A1'] = 'Phrase'
-            ws['B1'] = 'Modèle'
-            ws['C1'] = 'Score'
+            ws['B1'] = 'Score'
 
-            # Ajouter l'historique dans la feuille de calcul
-            messages = self.message_display.toPlainText().split('\n')
-            row_index = 2  # Commencer à la ligne suivante après l'en-tête
-            current_phrase = ""
-            current_model = ""
-            current_score = ""
-            for message in messages:
-                if message.startswith("Phrase:"):
-                    current_phrase = message.split("Phrase:")[1]
-                elif message.startswith("Modèle:"):
-                    current_model = message.split("Modèle:")[1]
-                elif message.startswith("Score:"):
-                    current_score = message.split("Score:")[1]
-                    # Écrire les données dans le classeur Excel
-                    ws.cell(row=row_index, column=1, value=current_phrase)
-                    ws.cell(row=row_index, column=2, value=current_model)
-                    ws.cell(row=row_index, column=3, value=current_score)
+            if self.average_checkbox.isChecked():
+                # Calculer les scores pour chaque paragraphe
+                paragraph_scores = self.send_message()  
+                
+                # Ajouter les paragraphes et leurs scores moyens dans la feuille de calcul
+                row_index = 2  # Commencer à la ligne suivante après l'en-tête
+                for paragraph, score in paragraph_scores.items():
+                    ws.cell(row=row_index, column=1, value=paragraph)
+                    ws.cell(row=row_index, column=2, value=score)
                     row_index += 1
+            else:
+                # Enregistrer les scores des phrases individuelles
+                messages = self.message_display.toPlainText().split('\n')
+                row_index = 2  # Commencer à la ligne suivante après l'en-tête
+                for message in messages:
+                    if message.startswith("Phrase:"):
+                        phrase = message.split("Phrase:")[1]
+                    elif message.startswith("Score:"):
+                        score = message.split("Score:")[1]
+                        ws.cell(row=row_index, column=1, value=phrase)
+                        ws.cell(row=row_index, column=2, value=score)
+                        row_index += 1
 
             # Enregistrer le classeur Excel
             wb.save(file_path)
@@ -386,7 +403,8 @@ class ChatInterface(QMainWindow):
         for sentence in sentences:
             if not sentence.strip():  # Ignorer les phrases vides
                 continue
-            print(sentence)
+            sentence = sentence.replace('\n', '')
+
             self.display_message("Phrase: " + sentence)
 
             selected_function = None
