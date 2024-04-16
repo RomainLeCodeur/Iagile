@@ -342,36 +342,33 @@ class ChatInterface(QMainWindow):
             # Ajouter des en-têtes
             ws['A1'] = 'Phrase'
             ws['B1'] = 'Score'
+            ws['C1'] = 'Moyenne'  # Ajouter un en-tête pour la moyenne
 
-            if self.average_checkbox.isChecked():
-                # Calculer les scores pour chaque paragraphe
-                paragraph_scores = self.send_message()  
-                
-                # Ajouter les paragraphes et leurs scores moyens dans la feuille de calcul
-                row_index = 2  # Commencer à la ligne suivante après l'en-tête
-                for paragraph, score in paragraph_scores.items():
-                    ws.cell(row=row_index, column=1, value=paragraph)
+            messages = self.message_display.toPlainText().split('\n')
+            scores = []  # Liste pour stocker les scores pour le calcul de la moyenne
+
+            row_index = 2  # Commencer à la ligne suivante après l'en-tête
+            for message in messages:
+                if message.startswith("Phrase:"):
+                    phrase = message.split("Phrase:")[1].strip()
+                elif message.startswith("Score:"):
+                    score = message.split("Score:")[1].strip()
+                    scores.append(float(score))  # Convertir le score en float et l'ajouter à la liste
+                    ws.cell(row=row_index, column=1, value=phrase)
                     ws.cell(row=row_index, column=2, value=score)
                     row_index += 1
-            else:
-                # Enregistrer les scores des phrases individuelles
-                messages = self.message_display.toPlainText().split('\n')
-                row_index = 2  # Commencer à la ligne suivante après l'en-tête
-                for message in messages:
-                    if message.startswith("Phrase:"):
-                        phrase = message.split("Phrase:")[1]
-                    elif message.startswith("Score:"):
-                        score = message.split("Score:")[1]
-                        ws.cell(row=row_index, column=1, value=phrase)
-                        ws.cell(row=row_index, column=2, value=score)
-                        row_index += 1
+
+            if scores:
+                if '/' not in scores:
+                    average_score = sum(scores) / len(scores)  # Calculer la moyenne des scores
+                    ws.cell(row=1, column=3, value="Moyenne")  # Écrire l'en-tête de la moyenne
+                    ws.cell(row=2, column=3, value=average_score)  # Écrire la moyenne dans la première ligne des données
 
             # Enregistrer le classeur Excel
             wb.save(file_path)
 
             # Ouvrir le fichier Excel avec l'application par défaut
             QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
-
     def parse_message(self, message):
         # Séparer le message en phrase, choix du modèle et score
         parts = message.split('\n')
