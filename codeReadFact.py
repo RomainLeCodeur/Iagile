@@ -287,9 +287,9 @@ class ChatInterface(QMainWindow):
                     score_str = message.split("Score:")[1].strip()
 
                     # Vérifier si le score contient un '/'
-                    if '/' in score_str:
+                    if '&' in score_str:
                         # Diviser le score en deux parties
-                        factuality_score_str, readability_score_str = score_str.split('/')
+                        factuality_score_str, readability_score_str = score_str.split('&')
                         
                         # Convertir les parties en float si elles ne sont pas vides
                         if factuality_score_str:
@@ -379,9 +379,9 @@ class ChatInterface(QMainWindow):
             if selected_function == 1:
                 response = factuality.scoreFact(sentence)
                 if response['label']=="LABEL_1":
-                    response=response['score']
+                    response=str(response['score'])
                 else:
-                    response=1-response['score']
+                    response=str(1-response['score'])
             elif selected_function == 2:
                 response = readability.scoreRead(sentence)
             elif selected_function == 3:
@@ -391,9 +391,9 @@ class ChatInterface(QMainWindow):
                 else:
                     responseFact=1-responseFact['score']
                 responseRead = readability.scoreRead(sentence)
-                response = str(responseFact) + " / " + str(responseRead)
+                response = str(responseFact) + " & " + str(responseRead)
 
-            self.display_message("Score: " + response)
+            self.display_message("Score: " + str(response))
         
         self.entry_field.clear()
 
