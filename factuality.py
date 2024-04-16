@@ -16,16 +16,19 @@ model = AutoModelForSequenceClassification.from_pretrained(config.base_model_nam
 tokenizer = AutoTokenizer.from_pretrained(output_dir)
 model = PeftModel.from_pretrained(model,output_dir)
 
-#label1 factualité
-#label0 opinion
+#label1 = factualité
+#label0 = opinion
+
+#utilisation de classifier
+#var=classifier("Test1")[0]
+#print(var['label'])
+
 
 # Use a pipeline as a high-level helper
 from transformers import pipeline
 
 classifier = pipeline("text-classification",model=model,tokenizer=tokenizer)
-var=classifier("The earth is flat")[0]
-print(var['label'])
 
 def scoreFact(text):
     var=classifier(text)[0]
-    return str(var['score'])
+    return var

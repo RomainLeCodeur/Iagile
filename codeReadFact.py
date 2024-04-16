@@ -37,69 +37,7 @@ headers = {"Authorization": "Bearer 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"}
 class LanguageInterface:
     def __init__(self, chat_interface):
         self.chat_interface = chat_interface
-        self.language_options = {"English", "French", "Spanish", "German", "Italian"}  # Exemple de langues disponibles
-        self.language_combobox = QComboBox()
-        self.language_combobox.addItems(self.language_options)
-        self.language_combobox.currentTextChanged.connect(self.change_language)
 
-    def change_language(self, language):
-        print(f"Changer la langue en: {language}")
-        # Mettre en place la logique pour changer la langue de l'interface utilisateur
-        if language == "English":
-            self.translate_to_english()
-        elif language == "French":
-            self.translate_to_french()
-        elif language == "Spanish":
-            self.translate_to_spanish()
-        elif language == "German":
-            self.translate_to_german()
-        elif language == "Italian":
-            self.translate_to_italian()
-
-    def translate_to_english(self):
-        # Traduire les textes en anglais
-        self.chat_interface.label_phrase.setText("Your sentence")
-        self.chat_interface.label_history.setText("History")
-        self.chat_interface.send_button.setText("Send")
-        self.chat_interface.quit_button.setText("Quit")
-        self.chat_interface.function1_checkbox.setText("Function 1")
-        self.chat_interface.function2_checkbox.setText("Function 2")
-
-    def translate_to_french(self):
-        # Traduire les textes en français
-        self.chat_interface.label_phrase.setText("Votre phrase")
-        self.chat_interface.label_history.setText("Historique")
-        self.chat_interface.send_button.setText("Envoyer")
-        self.chat_interface.quit_button.setText("Quitter")
-        self.chat_interface.function1_checkbox.setText("Fonction 1")
-        self.chat_interface.function2_checkbox.setText("Fonction 2")
-
-    def translate_to_spanish(self):
-        # Traduire les textes en espagnol
-        self.chat_interface.label_phrase.setText("Tu frase")
-        self.chat_interface.label_history.setText("Historial")
-        self.chat_interface.send_button.setText("Enviar")
-        self.chat_interface.quit_button.setText("Salir")
-        self.chat_interface.function1_checkbox.setText("Función 1")
-        self.chat_interface.function2_checkbox.setText("Función 2")
-
-    def translate_to_german(self):
-        # Traduire les textes en allemand
-        self.chat_interface.label_phrase.setText("Ihr Satz")
-        self.chat_interface.label_history.setText("Geschichte")
-        self.chat_interface.send_button.setText("Senden")
-        self.chat_interface.quit_button.setText("Beenden")
-        self.chat_interface.function1_checkbox.setText("Funktion 1")
-        self.chat_interface.function2_checkbox.setText("Funktion 2")
-
-    def translate_to_italian(self):
-        # Traduire les textes en italien
-        self.chat_interface.label_phrase.setText("La tua frase")
-        self.chat_interface.label_history.setText("Storia")
-        self.chat_interface.send_button.setText("Inviare")
-        self.chat_interface.quit_button.setText("Uscita")
-        self.chat_interface.function1_checkbox.setText("Funzione 1")
-        self.chat_interface.function2_checkbox.setText("Funzione 2")
 
 class ChatInterface(QMainWindow):
     def __init__(self):
@@ -113,7 +51,7 @@ class ChatInterface(QMainWindow):
         
         # Zone de saisie des messages
         self.entry_field = QTextEdit()
-        self.label_phrase = QLabel("Votre phrase")
+        self.label_phrase = QLabel("Your sentence")
         layout.addWidget(self.label_phrase, 0, 0)
         layout.addWidget(self.entry_field, 1, 0)
 
@@ -122,12 +60,6 @@ class ChatInterface(QMainWindow):
         self.function1_checkbox.setStyleSheet(f"QCheckBox {{ color: {TEXT_COLOR}; }}")  # Appliquer uniquement la couleur du texte
         self.function2_checkbox = QCheckBox("Readability")
         self.function2_checkbox.setStyleSheet(f"QCheckBox {{ color: {TEXT_COLOR}; }}")  # Appliquer uniquement la couleur du texte
-
-        # Case à cocher pour le calcul de la moyenne des scores des paragraphes
-        self.average_checkbox = QCheckBox("Moyenne des scores")
-        self.average_checkbox.setStyleSheet(f"QCheckBox {{ color: {TEXT_COLOR}; }}")  
-        layout.addWidget(self.average_checkbox, 2, 1)  # Ajouter la case à cocher à la disposition
-
 
         self.checkbox_layout = QVBoxLayout()
         self.checkbox_layout.addWidget(self.function1_checkbox)
@@ -139,7 +71,7 @@ class ChatInterface(QMainWindow):
         # Console de sortie
         self.message_display = QTextEdit()
         self.message_display.setReadOnly(True)
-        self.label_history = QLabel("Historique")
+        self.label_history = QLabel("History")
         layout.addWidget(self.label_history, 0, 2)
         layout.addWidget(self.message_display, 1, 2)
 
@@ -157,7 +89,7 @@ class ChatInterface(QMainWindow):
         
         layout.addLayout(button_layout, 2, 0)
 
-        self.reset_button = QPushButton("Reset Historic")
+        self.reset_button = QPushButton("Reset History")
         self.reset_button.clicked.connect(self.reset_history)
         self.reset_button.setStyleSheet(f"background-color: {BUTTON_COLOR}; color: {BUTTON_TEXT_COLOR};")
         button_layout.addWidget(self.reset_button)
@@ -178,46 +110,39 @@ class ChatInterface(QMainWindow):
         menubar = self.menuBar()
 
         # Menu Fichier
-        file_menu = menubar.addMenu('Fichier')
+        file_menu = menubar.addMenu('File')
 
         # Action Enregistrer Historique
-        save_history_action = QAction('Enregistrer Historique', self)
+        save_history_action = QAction('Save History', self)
         save_history_action.triggered.connect(self.save_history)
         file_menu.addAction(save_history_action)
         
         # Action Charger Phrases depuis Excel
-        load_phrases_action = QAction('Charger Phrases depuis Excel', self)
+        load_phrases_action = QAction('Load From Excel', self)
         load_phrases_action.triggered.connect(self.load_phrases_from_excel)
         file_menu.addAction(load_phrases_action)
 
         # Action Charger Phrases depuis Excel
-        load_phrases_action = QAction('Charger Phrases depuis Pdf', self)
+        load_phrases_action = QAction('Load From Pdf', self)
         load_phrases_action.triggered.connect(self.load_text_from_pdf)
         file_menu.addAction(load_phrases_action)
-        # Menu Langue
-        self.menu_language = menubar.addMenu('Langue')
-        self.language_options = {"English", "French", "Spanish", "German", "Italian"}  # Langues disponibles
-        for language in self.language_options:
-            language_action = QAction(language, self)
-            language_action.triggered.connect(lambda _, lang=language: self.language_interface.change_language(lang))
-            self.menu_language.addAction(language_action)
 
         # Menu Aide
-        help_menu = menubar.addMenu('Aide')
+        help_menu = menubar.addMenu('Help')
 
         # Action Aide PDF
-        help_pdf_action = QAction('Guide d\'utilisation (PDF)', self)
+        help_pdf_action = QAction('User Guide (PDF)', self)
         help_pdf_action.triggered.connect(self.open_pdf_guide)
         help_menu.addAction(help_pdf_action)
 
     def load_phrases_from_excel(self):
         # Demander à l'utilisateur de sélectionner le fichier Excel
-        file_path, _ = QFileDialog.getOpenFileName(self, "Charger Phrases depuis Excel", "", "Fichiers Excel (*.xlsx)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Load From Excel", "", "Files Excel (*.xlsx)")
 
         if file_path:
             # Demander à l'utilisateur de spécifier les lignes et les colonnes
-            rows_input, ok_rows = QInputDialog.getText(self, "Lignes", "Numéros de lignes (séparés par des virgules ou intervalle 'début;fin') : ", QLineEdit.Normal, "")
-            columns_input, ok_columns = QInputDialog.getText(self, "Colonnes", "Lettres des colonnes (séparées par des virgules ou intervalle 'début;fin') : ", QLineEdit.Normal, "")
+            rows_input, ok_rows = QInputDialog.getText(self, "Row", "Row numbers (separated by commas or range 'start;end'): ", QLineEdit.Normal, "")
+            columns_input, ok_columns = QInputDialog.getText(self, "Columns", "Column letters (separated by commas or range 'start;end'): ", QLineEdit.Normal, "")
             
             if ok_rows and ok_columns:
                 # Traitement des lignes et des colonnes spécifiées par l'utilisateur
@@ -269,7 +194,7 @@ class ChatInterface(QMainWindow):
 
     def load_text_from_pdf(self):
         # Demander à l'utilisateur de sélectionner le fichier PDF
-        file_path, _ = QFileDialog.getOpenFileName(self, "Charger Texte depuis PDF", "", "Fichiers PDF (*.pdf)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Load From PDF", "", "Files PDF (*.pdf)")
 
         if file_path:
             try:
@@ -288,7 +213,7 @@ class ChatInterface(QMainWindow):
                 document.close()
             except Exception as e:
                 # Gérer les erreurs lors de l'ouverture ou de l'extraction du texte du fichier PDF
-                QMessageBox.critical(self, "Erreur", f"Erreur lors de la lecture du fichier PDF : {e}")
+                QMessageBox.critical(self, "Error", f"Error while loading PDF file : {e}")
     def load_phrases(self, file_path, rows=None, columns=None):
         phrases = []
 
@@ -326,13 +251,13 @@ class ChatInterface(QMainWindow):
             workbook.close()
         except Exception as e:
             # Gérer les erreurs de lecture du fichier Excel
-            QMessageBox.critical(self, "Erreur", f"Erreur lors de la lecture du fichier Excel : {e}")
+            QMessageBox.critical(self, "Error", f"Error while loading Excel file : {e}")
 
         return phrases
 
     def save_history(self):
         # Demander à l'utilisateur de spécifier le nom et le chemin du fichier Excel
-        file_path, _ = QFileDialog.getSaveFileName(self, "Enregistrer Historique", "", "Fichiers Excel (*.xlsx)")
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save History", "", "Files Excel (*.xlsx)")
 
         if file_path:
             # Créer un nouveau classeur Excel
@@ -340,35 +265,70 @@ class ChatInterface(QMainWindow):
             ws = wb.active
 
             # Ajouter des en-têtes
-            ws['A1'] = 'Phrase'
-            ws['B1'] = 'Score'
-            ws['C1'] = 'Moyenne'  # Ajouter un en-tête pour la moyenne
-
-            messages = self.message_display.toPlainText().split('\n')
-            scores = []  # Liste pour stocker les scores pour le calcul de la moyenne
+            ws['A1'] = 'Sentence'
+            ws['B1'] = 'Model'
+            ws['C1'] = 'Score'
+            ws['D1'] = 'Average Factuality'
+            ws['E1'] = 'Average Readability'
 
             row_index = 2  # Commencer à la ligne suivante après l'en-tête
+            messages = self.message_display.toPlainText().split('\n')
+
+            # Initialiser des listes pour stocker les scores de chaque modèle
+            factuality_scores = []
+            readability_scores = []
+
             for message in messages:
-                if message.startswith("Phrase:"):
-                    phrase = message.split("Phrase:")[1].strip()
+                if message.startswith("Sentence:"):
+                    phrase = message.split("Sentence:")[1].strip()
+                elif message.startswith("Model:"):
+                    model = message.split("Model:")[1].strip()
                 elif message.startswith("Score:"):
-                    score = message.split("Score:")[1].strip()
-                    scores.append(float(score))  # Convertir le score en float et l'ajouter à la liste
+                    score_str = message.split("Score:")[1].strip()
+
+                    # Vérifier si le score contient un '/'
+                    if '/' in score_str:
+                        # Diviser le score en deux parties
+                        factuality_score_str, readability_score_str = score_str.split('/')
+                        
+                        # Convertir les parties en float si elles ne sont pas vides
+                        if factuality_score_str:
+                            factuality_score_float = float(factuality_score_str.strip())
+                            factuality_scores.append(factuality_score_float)
+
+                        if readability_score_str:
+                            readability_score_float = float(readability_score_str.strip())
+                            readability_scores.append(readability_score_float)
+                    else:
+                        # Convertir le score en float si ce n'est pas vide
+                        if score_str:
+                            score_float = float(score_str)
+                            factuality_scores.append(score_float) if model == 'Factuality' else readability_scores.append(score_float)
+                        
                     ws.cell(row=row_index, column=1, value=phrase)
-                    ws.cell(row=row_index, column=2, value=score)
+                    ws.cell(row=row_index, column=2, value=model)
+                    ws.cell(row=row_index, column=3, value=score_str)
+
                     row_index += 1
 
-            if scores:
-                if '/' not in scores:
-                    average_score = sum(scores) / len(scores)  # Calculer la moyenne des scores
-                    ws.cell(row=1, column=3, value="Moyenne")  # Écrire l'en-tête de la moyenne
-                    ws.cell(row=2, column=3, value=average_score)  # Écrire la moyenne dans la première ligne des données
+            # Calculer et écrire la moyenne totale pour chaque modèle
+            if factuality_scores:
+                factuality_average = sum(factuality_scores) / len(factuality_scores)
+                ws['D2'] = factuality_average
+
+            if readability_scores:
+                readability_average = sum(readability_scores) / len(readability_scores)
+                ws['E2'] = readability_average
 
             # Enregistrer le classeur Excel
             wb.save(file_path)
 
             # Ouvrir le fichier Excel avec l'application par défaut
             QDesktopServices.openUrl(QUrl.fromLocalFile(file_path))
+
+
+
+
     def parse_message(self, message):
         # Séparer le message en phrase, choix du modèle et score
         parts = message.split('\n')
@@ -377,10 +337,10 @@ class ChatInterface(QMainWindow):
         score = None
 
         for part in parts:
-            if part.startswith('Phrase:'):
-                phrase = part.split('Phrase:')[-1].strip()
-            elif part.startswith('Modèle:'):
-                model_choice = part.split('Modèle:')[-1].strip()
+            if part.startswith('Sentence:'):
+                phrase = part.split('Sentence:')[-1].strip()
+            elif part.startswith('Model:'):
+                model_choice = part.split('Model:')[-1].strip()
             elif part.startswith('Score:'):
                 score = part.split('Score:')[-1].strip()
 
@@ -391,7 +351,7 @@ class ChatInterface(QMainWindow):
         message = self.entry_field.toPlainText()
 
         if not self.function1_checkbox.isChecked() and not self.function2_checkbox.isChecked():
-            QMessageBox.warning(self, "Aucune fonction sélectionnée", "Veuillez sélectionner au moins une fonction.")
+            QMessageBox.warning(self, "No Function Checked", "Please select a function.")
             return
 
         # Diviser le texte en phrases
@@ -402,25 +362,36 @@ class ChatInterface(QMainWindow):
                 continue
             sentence = sentence.replace('\n', '')
 
-            self.display_message("Phrase: " + sentence)
+            self.display_message("Sentence: " + sentence)
 
             selected_function = None
             if self.function1_checkbox.isChecked() and self.function2_checkbox.isChecked():
-                self.display_message("Modèle: Factuality and Readability")
+                self.display_message("Model: Factuality and Readability")
                 selected_function = 3
             elif self.function1_checkbox.isChecked() and not self.function2_checkbox.isChecked():
-                self.display_message("Modèle: Factuality")
+                self.display_message("Model: Factuality")
                 selected_function = 1
             elif self.function2_checkbox.isChecked() and not self.function1_checkbox.isChecked():
-                self.display_message("Modèle: Readability")
+                self.display_message("Model: Readability")
                 selected_function = 2
-
+#label1 factualité
+#label0 opinion
             if selected_function == 1:
                 response = factuality.scoreFact(sentence)
+                if response['label']=="LABEL_1":
+                    response=response['score']
+                else:
+                    response=1-response['score']
             elif selected_function == 2:
                 response = readability.scoreRead(sentence)
             elif selected_function == 3:
-                response = factuality.scoreFact(sentence) + " / " + readability.scoreRead(sentence)
+                responseFact = factuality.scoreFact(sentence)
+                if responseFact['label']=="LABEL_1":
+                    responseFact=responseFact['score']
+                else:
+                    responseFact=1-responseFact['score']
+                responseRead = readability.scoreRead(sentence)
+                response = str(responseFact) + " / " + str(responseRead)
 
             self.display_message("Score: " + response)
         
